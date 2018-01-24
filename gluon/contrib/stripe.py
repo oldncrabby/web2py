@@ -97,6 +97,7 @@ class StripeForm(object):
                  currency_symbol = '$',
                  security_notice = True,
                  disclosure_notice = True,
+                 receipt_email = None,
                  template = None):
         from gluon import current, redirect, URL
         if not (current.request.is_local or current.request.is_https):
@@ -112,6 +113,7 @@ class StripeForm(object):
         self.template = template or TEMPLATE
         self.accepted = None
         self.errors = None
+        self.receipt_email = receipt_email
         self.signature = sha1(repr((self.amount,self.description))).hexdigest()
 
     def process(self):
@@ -123,6 +125,7 @@ class StripeForm(object):
                     token=request.post_vars.stripeToken,
                     amount=self.amount,
                     description=self.description,
+                    more={'receipt_email':self.receipt_email},
                     currency=self.currency)
                 if self.response.get('paid',False):
                     self.accepted = True
